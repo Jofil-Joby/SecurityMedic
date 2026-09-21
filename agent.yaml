@@ -1,0 +1,4 @@
+﻿spec_version: "0.1.0"
+name: security-medic
+version: "0.1.0"
+description: A portable AI agent that analyzes source and configuration and produces an explainable improvement plan.

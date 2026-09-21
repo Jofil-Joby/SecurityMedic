@@ -1,66 +1,133 @@
 # SecurityMedic
 
-> Portable agent for detecting obvious hard-coded credential patterns in source and configuration.
+> A portable engineering agent for **source and configuration security hygiene**.
 
-## What it does
+SecurityMedic inspects observable project evidence, detects **credential-like hard-coded patterns**, and produces an explainable improvement plan. Its purpose is not to replace specialist tooling. It provides a focused, auditable diagnostic layer that can travel across agent runtimes.
 
-SecurityMedic scans available project evidence for credential-like patterns such as passwords, secrets, or API keys embedded directly in source/configuration text. When it finds a match, it explains the observation and recommends moving secrets into appropriate secret management.
+## What makes it different
 
-### Diagnostic fingerprint
-
-**Pattern detection → evidence capture → security finding → safer handling**
-
-## Why this agent is distinct
-
-SecurityMedic is not presented as a full vulnerability scanner. Its scope is intentionally explicit: identify a high-signal class of credential exposure that can be checked deterministically.
-
-That makes the result reproducible, explainable, and suitable for a portable agent contract.
-
-## Evidence-first behavior
+This project follows an **evidence → decision → explanation** model:
 
 ```text
-Project files
-    ↓
-Source/config text
-    ↓
-Credential-pattern rule
-    ↓
-Observed evidence
-    ↓
-Recommended remediation
+Project
+  ↓
+Scanner
+  ↓
+Domain Evidence
+  ↓
+Deterministic Diagnostic Rule
+  ↓
+Finding + Evidence + Confidence
+  ↓
+Improvement Plan
 ```
 
-No finding is based on a claim that cannot be tied back to scanned evidence.
+The agent does not invent evidence. A finding is tied to what the scanner can actually observe.
+
+## Diagnostic contract
+
+| Layer | SecurityMedic behavior |
+| --- | --- |
+| Domain | source and configuration security hygiene |
+| Primary signal | password, secret, or API-key assignments |
+| Remediation | Move credentials into secure secret management |
+| Output | Structured, explainable findings |
+| Uncertainty | Explicitly constrained by available evidence |
+
+## Portable architecture
+
+```text
+                    ┌─────────────────────┐
+                    │   Portable Agent    │
+                    │ identity + behavior  │
+                    └──────────┬──────────┘
+                               │
+              ┌────────────────┼────────────────┐
+              ↓                ↓                ↓
+          Diagnostic        Duties &         Explainability
+            Logic           Workflow           Contract
+              │
+              ↓
+        Runtime Adapters
+       ┌──────┬──────┬──────┬──────┐
+       ↓      ↓      ↓      ↓
+    OpenAI  CrewAI  Claude  Lyzr
+```
+
+The core diagnostic logic is kept separate from framework-specific adapters. This is the central design idea of the project, not four copies of the same agent wearing different hats.
+
+## Repository structure
+
+```text
+agent.yaml          # Portable identity and passport metadata
+SOUL.md             # Identity, principles, and behavior
+AGENTS.md           # Agent responsibilities
+DUTIES.md           # Maker / Checker workflow
+EXPLAINABILITY.md   # Decision, inputs, limits, and evidence contract
+core/               # Shared result model
+tools/              # Scanner and domain diagnostics
+skills/             # Declared capabilities
+workflows/          # Agent workflows
+adapters/           # Runtime-facing adapters
+tests/              # Deliberately diagnostic project fixtures
+```
+
+## Passport portability
+
+The agent is structured for the OpenGAP passport model and can be exported to:
+
+- OpenAI Agents SDK
+- CrewAI
+- Claude Code
+- Lyzr
+
+The important part is the **portable contract**: identity, behavior, duties, explainability, tools, and skills remain defined independently of a single runtime.
 
 ## Verification
 
-The repository contains:
-- OpenGAP passport metadata
-- behavior and explainability contracts
-- security-focused fixture data
-- OpenAI, CrewAI, Claude Code, and Lyzr adapters
-- automated adapter verification
+The repository includes:
 
-The passport has been validated with OpenGAP and all four generated framework exports have been exercised successfully.
+- Local adapter verification
+- A domain-specific broken-project fixture
+- OpenGAP-compatible passport metadata
+- Explainability requirements
+- Export verification across the supported targets
 
-## Repository layout
+The engineering workflow is:
 
 ```text
-agent.yaml
-SOUL.md
-EXPLAINABILITY.md
-AGENTS.md
-DUTIES.md
-agent.py
-tools/
-adapters/
-tests/
+Validate passport
+    → Verify adapters
+    → Run diagnostic fixture
+    → Export with OpenGAP
+    → Inspect generated artifacts
 ```
 
-## Safety boundary
+## Scope and limitations
 
-A pattern match is a signal for review, not proof of malicious behavior. SecurityMedic intentionally recommends safer secret handling instead of making unsupported claims about the project.
+SecurityMedic is a focused diagnostic prototype. Its conclusions are limited to the evidence and rules implemented in this repository. It should complement, not replace, production-grade static analysis, security scanners, observability platforms, CI systems, or human review where appropriate.
 
-## Medic family
+## Why this project exists
 
-SecurityMedic is one focused diagnostic in a portable family of engineering agents. The architecture stays consistent so agents can interoperate, while each agent owns a different evidence domain.
+This repository is one member of a deliberately modular **Medic agent family**. Each agent applies the same portable passport architecture to a different engineering failure surface.
+
+That makes the collection useful as an interoperability experiment:
+
+```text
+One passport architecture
+        +
+Different diagnostic domains
+        +
+Multiple agent runtimes
+        =
+Portable engineering-agent family
+```
+
+## Challenge context
+
+Built for the **HiDevs × Lyzr Agent Passport Challenge**, exploring portable agent identity, behavior contracts, explainability, verification, and framework interoperability.
+
+## Author
+
+**Jofil Joby**  
+[GitHub](https://github.com/Jofil-Joby)
